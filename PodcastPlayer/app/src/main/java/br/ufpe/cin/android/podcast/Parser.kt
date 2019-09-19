@@ -3,10 +3,9 @@ package br.ufpe.cin.android.podcast
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
-
 import java.io.IOException
 import java.io.StringReader
-import java.util.ArrayList
+import java.util.*
 
 object Parser {
 
@@ -99,6 +98,8 @@ object Parser {
         var link: String? = null
         var pubDate: String? = null
         var description: String? = null
+        var downloadLink: String? = null
+        var imageLink: String? = null
         parser.require(XmlPullParser.START_TAG, null, "item")
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
@@ -113,11 +114,16 @@ object Parser {
                 pubDate = readData(parser, "pubDate")
             } else if (name == "description") {
                 description = readData(parser, "description")
+            } else if (name == "guid") {
+                downloadLink = readData(parser, "guid")
+            } else if (name == "itunes:image") {
+                imageLink = parser.getAttributeValue(null, "href")
+                skip(parser)
             } else {
                 skip(parser)
             }
         }
-        return ItemFeed(title!!, link!!, pubDate!!, description!!, "carregar o link")
+        return ItemFeed(title!!, link!!, pubDate!!, description!!, downloadLink!!, imageLink!!)
     }
 
     // Processa tags de forma parametrizada no feed.
